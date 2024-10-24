@@ -114,9 +114,7 @@
         <div class="form-group">
             <label for="appliesTo">Applies to:</label>
             <select id="appliesTo">
-                <option value="material1">Material 1</option>
-                <option value="material2">Material 2</option>
-                <option value="material3">Material 3</option>
+                <!-- Materials will be populated dynamically -->
             </select>
         </div>
 
@@ -142,149 +140,167 @@
     <script>
         // Load triggers from JSON
         async function loadTriggers() {
-        try {
-            const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/triggers.json');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch triggers: ${response.statusText}`);
-            }
-            const triggers = await response.json();
-            console.log("Triggers JSON:", triggers); // Debugging log
-            const triggersSelect = document.getElementById('triggers');
-            
-            // Loop through the dictionary
-            for (const [key, value] of Object.entries(triggers)) {
-                console.log("Trigger key:", key, "Description:", value); // Debugging log
-
-                const option = document.createElement('option');
-                option.value = key;  // Use the key as the value for the option
-                option.text = key;    // Show the trigger name
-                triggersSelect.appendChild(option);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-	// Load effects for levels from JSON
-	async function loadEffects() {
-        try {
-            const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/effects.json');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch effects: ${response.statusText}`);
-            }
-            const effects = await response.json();
-            const levelsSelect = document.getElementById('levels');
-
-            // Dynamically generate input fields for levels based on the selected number
-            levelsSelect.addEventListener('change', function () {
-                const levelCount = parseInt(this.value);
-                const effectsContainer = document.getElementById('effectsContainer');
-                effectsContainer.innerHTML = ''; // Clear previous effects
-
-                for (let i = 1; i <= levelCount; i++) {
-                    const select = document.createElement('select');
-                    select.id = `effectLevel${i}`;
-                    select.addEventListener('change', function() {
-                        handleArgsInput(this, effects, i);
-                    });
-
-                    // Iterate over the 'actions' section of effects
-                    for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
-                        const option = document.createElement('option');
-                        const action = effectDetails.effect.action;
-                        option.value = action;
-                        option.text = effectKey; // Display only effect key (action name)
-                        select.appendChild(option);
-                    }
-
-                    const label = document.createElement('label');
-                    label.textContent = `Effect for Level ${i}:`;
-
-                    const div = document.createElement('div');
-                    div.className = 'form-group';
-                    div.appendChild(label);
-                    div.appendChild(select);
-
-                    // Div to hold arguments input
-                    const argsDiv = document.createElement('div');
-                    argsDiv.id = `argsDiv${i}`;
-                    div.appendChild(argsDiv); // Append the args input below the effect dropdown
-
-                    effectsContainer.appendChild(div);
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/triggers.json');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch triggers: ${response.statusText}`);
                 }
-            });
-        } catch (error) {
-            console.error(error);
+                const triggers = await response.json();
+                const triggersSelect = document.getElementById('triggers');
+                
+                // Loop through the dictionary
+                for (const [key, value] of Object.entries(triggers)) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.text = key;
+                    triggersSelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
 
-    // Handle adding argument inputs based on the selected effect
-    function handleArgsInput(selectElement, effects, level) {
-        const selectedEffect = selectElement.value;
-        const argsDiv = document.getElementById(`argsDiv${level}`);
-        argsDiv.innerHTML = ''; // Clear previous args input if any
+        // Load effects for levels from JSON
+        async function loadEffects() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/effects.json');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch effects: ${response.statusText}`);
+                }
+                const effects = await response.json();
+                const levelsSelect = document.getElementById('levels');
 
-        // Find the selected effect's arguments
-        for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
-            if (effectDetails.effect.action === selectedEffect) {
-                const args = effectDetails.effect.args;
+                levelsSelect.addEventListener('change', function () {
+                    const levelCount = parseInt(this.value);
+                    const effectsContainer = document.getElementById('effectsContainer');
+                    effectsContainer.innerHTML = ''; // Clear previous effects
 
-                if (args.length > 0) {
-                    args.forEach(arg => {
+                    for (let i = 1; i <= levelCount; i++) {
+                        const select = document.createElement('select');
+                        select.id = `effectLevel${i}`;
+                        select.addEventListener('change', function() {
+                            handleArgsInput(this, effects, i);
+                        });
+
+                        // Iterate over the 'actions' section of effects
+                        for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
+                            const option = document.createElement('option');
+                            const action = effectDetails.effect.action;
+                            option.value = action;
+                            option.text = effectKey; // Display only effect key (action name)
+                            select.appendChild(option);
+                        }
+
                         const label = document.createElement('label');
-                        label.textContent = `Argument (${arg}):`;
+                        label.textContent = `Effect for Level ${i}:`;
 
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.id = `arg_${arg}_level_${level}`;
-                        input.placeholder = `Enter ${arg}`;
+                        const div = document.createElement('div');
+                        div.className = 'form-group';
+                        div.appendChild(label);
+                        div.appendChild(select);
 
-                        const inputDiv = document.createElement('div');
-                        inputDiv.className = 'form-group';
-                        inputDiv.appendChild(label);
-                        inputDiv.appendChild(input);
+                        // Div to hold arguments input
+                        const argsDiv = document.createElement('div');
+                        argsDiv.id = `argsDiv${i}`;
+                        div.appendChild(argsDiv); // Append the args input below the effect dropdown
 
-                        argsDiv.appendChild(inputDiv); // Append each argument input
-                    });
+                        effectsContainer.appendChild(div);
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Load materials (applies to) from JSON
+        async function loadMaterials() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/applies.json');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch materials: ${response.statusText}`);
+                }
+                const materials = await response.json();
+                const appliesToSelect = document.getElementById('appliesTo');
+
+                // Populate materials dropdown with formatted values
+                for (const [materialKey, materialDetails] of Object.entries(materials)) {
+                    const option = document.createElement('option');
+                    option.value = materialKey;
+                    option.text = materialDetails.formatted;
+                    appliesToSelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Handle adding argument inputs based on the selected effect
+        function handleArgsInput(selectElement, effects, level) {
+            const selectedEffect = selectElement.value;
+            const argsDiv = document.getElementById(`argsDiv${level}`);
+            argsDiv.innerHTML = ''; // Clear previous args input if any
+
+            // Find the selected effect's arguments
+            for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
+                if (effectDetails.effect.action === selectedEffect) {
+                    const args = effectDetails.effect.args;
+
+                    if (args.length > 0) {
+                        args.forEach(arg => {
+                            const label = document.createElement('label');
+                            label.textContent = `Argument (${arg}):`;
+
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = `arg_${arg}_level_${level}`;
+                            input.placeholder = `Enter ${arg}`;
+
+                            const inputDiv = document.createElement('div');
+                            inputDiv.className = 'form-group';
+                            inputDiv.appendChild(label);
+                            inputDiv.appendChild(input);
+
+                            argsDiv.appendChild(inputDiv); // Append each argument input
+                        });
+                    }
                 }
             }
         }
-    }
 
-	// Generate the template based on user input
-	function generateTemplate() {
-        const enchantmentName = document.getElementById('enchantmentName').value;
-        const enchantmentDescription = document.getElementById('enchantmentDescription').value;
-        const group = document.getElementById('group').value;
-        const triggers = document.getElementById('triggers').value;
-        const appliesTo = document.getElementById('appliesTo').value;
-        const levelCount = parseInt(document.getElementById('levels').value);
+        // Generate the template based on user input
+        function generateTemplate() {
+            const enchantmentName = document.getElementById('enchantmentName').value;
+            const enchantmentDescription = document.getElementById('enchantmentDescription').value;
+            const group = document.getElementById('group').value;
+            const triggers = document.getElementById('triggers').value;
+            const appliesTo = document.getElementById('appliesTo').value;
+            const levelCount = parseInt(document.getElementById('levels').value);
 
-        let levelsTemplate = '';
+            let levelsTemplate = '';
 
-        for (let i = 1; i <= levelCount; i++) {
-            const effectDropdown = document.getElementById(`effectLevel${i}`);
-            const selectedEffect = effectDropdown.value;
+            for (let i = 1; i <= levelCount; i++) {
+                const effectDropdown = document.getElementById(`effectLevel${i}`);
+                const selectedEffect = effectDropdown.value;
 
-            // Collect arguments if any
-            const argsDiv = document.getElementById(`argsDiv${i}`);
-            const inputs = argsDiv.querySelectorAll('input'); // Get all argument inputs
-            let argsString = '';
+                // Collect arguments if any
+                const argsDiv = document.getElementById(`argsDiv${i}`);
+                const inputs = argsDiv.querySelectorAll('input'); // Get all argument inputs
+                let argsString = '';
 
-            inputs.forEach(input => {
-                argsString += `${input.value},`; // Collect input values
-            });
-            argsString = argsString.slice(0, -1); // Remove the trailing comma
+                inputs.forEach(input => {
+                    argsString += `${input.value},`; // Collect input values
+                });
+                argsString = argsString.slice(0, -1); // Remove the trailing comma
 
-            const fullEffect = argsString ? `${selectedEffect}:${argsString}` : selectedEffect;
+                const fullEffect = argsString ? `${selectedEffect}:${argsString}` : selectedEffect;
 
-            levelsTemplate += `
+                levelsTemplate += `
     ${i}:
       effects:
         - "${fullEffect}"\n`;
-        }
+            }
 
-        const template = `
+            const template = `
 Enchant template
 ${enchantmentName}:
   display: "${enchantmentName}"
@@ -298,13 +314,14 @@ ${enchantmentName}:
     ${levelsTemplate}
 `;
 
-        document.getElementById('output').innerText = template;
-    }
+            document.getElementById('output').innerText = template;
+        }
 
-        // Load triggers and effects on page load
+        // Load triggers, effects, and materials on page load
         window.onload = function() {
             loadTriggers();
             loadEffects();
+            loadMaterials();
         };
     </script>
 </body>
