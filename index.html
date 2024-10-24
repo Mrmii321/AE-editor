@@ -324,12 +324,11 @@
                 const cooldown = document.getElementById(`cooldownLevel${i}`).value || '0'; // Default to 0 if not entered
                 const chance = document.getElementById(`chanceLevel${i}`).value || '100'; // Default to 100% if not entered
 
-                levelsTemplate += `
-        ${i}:
-            effects:
-                - "${fullEffect}"
-            cooldown: ${cooldown}
-            chance: ${chance}`;
+                levelsTemplate += `${i}:
+                effects:
+                    - "${fullEffect}"
+                cooldown: ${cooldown}
+                chance: ${chance}`;
             }
 
             const template = `
