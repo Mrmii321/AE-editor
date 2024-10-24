@@ -187,7 +187,7 @@
                             const option = document.createElement('option');
                             const action = effectDetails.effect.action;
                             option.value = action;
-                            option.text = effectKey; // Display only effect key (action name)
+                            option.text = effectKey;
                             select.appendChild(option);
                         }
 
@@ -199,10 +199,36 @@
                         div.appendChild(label);
                         div.appendChild(select);
 
+                        // Cooldown and Chance inputs
+                        const cooldownLabel = document.createElement('label');
+                        cooldownLabel.textContent = `Cooldown for Level ${i}:`;
+
+                        const cooldownInput = document.createElement('input');
+                        cooldownInput.type = 'number';
+                        cooldownInput.id = `cooldownLevel${i}`;
+                        cooldownInput.placeholder = 'Enter cooldown in seconds';
+
+                        const chanceLabel = document.createElement('label');
+                        chanceLabel.textContent = `Chance for Level ${i} (%):`;
+
+                        const chanceInput = document.createElement('input');
+                        chanceInput.type = 'number';
+                        chanceInput.id = `chanceLevel${i}`;
+                        chanceInput.placeholder = 'Enter chance percentage';
+
+                        const inputDiv = document.createElement('div');
+                        inputDiv.className = 'form-group';
+                        inputDiv.appendChild(cooldownLabel);
+                        inputDiv.appendChild(cooldownInput);
+                        inputDiv.appendChild(chanceLabel);
+                        inputDiv.appendChild(chanceInput);
+
+                        div.appendChild(inputDiv);
+
                         // Div to hold arguments input
                         const argsDiv = document.createElement('div');
                         argsDiv.id = `argsDiv${i}`;
-                        div.appendChild(argsDiv); // Append the args input below the effect dropdown
+                        div.appendChild(argsDiv);
 
                         effectsContainer.appendChild(div);
                     }
@@ -284,7 +310,7 @@
 
                 // Collect arguments if any
                 const argsDiv = document.getElementById(`argsDiv${i}`);
-                const inputs = argsDiv.querySelectorAll('input'); // Get all argument inputs
+                const inputs = argsDiv.querySelectorAll('input');
                 let argsString = '';
 
                 inputs.forEach(input => {
@@ -294,25 +320,31 @@
 
                 const fullEffect = argsString ? `${selectedEffect}:${argsString}` : selectedEffect;
 
+                // Get cooldown and chance values
+                const cooldown = document.getElementById(`cooldownLevel${i}`).value || '0'; // Default to 0 if not entered
+                const chance = document.getElementById(`chanceLevel${i}`).value || '100'; // Default to 100% if not entered
+
                 levelsTemplate += `
-    ${i}:
-      effects:
-        - "${fullEffect}"\n`;
+        ${i}:
+        effects:
+            - "${fullEffect}"
+        cooldown: ${cooldown}
+        chance: ${chance}\n`;
             }
 
             const template = `
-Enchant template
-${enchantmentName}:
-  display: "${enchantmentName}"
-  description: "${enchantmentDescription}"
-  applies-to: "${appliesTo}"
-  type: "${triggers}"
-  group: "${group}"
-  applies:
-    - ${appliesTo}
-  levels:
-    ${levelsTemplate}
-`;
+    Enchant template
+    ${enchantmentName}:
+    display: "${enchantmentName}"
+    description: "${enchantmentDescription}"
+    applies-to: "${appliesTo}"
+    type: "${triggers}"
+    group: "${group}"
+    applies:
+        - ${appliesTo}
+    levels:
+        ${levelsTemplate}
+    `;
 
             document.getElementById('output').innerText = template;
         }
