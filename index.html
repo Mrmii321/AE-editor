@@ -6,49 +6,70 @@
     <title>AE Editor</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background-color: #e0e0e0;
         }
 
         h1 {
             text-align: center;
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
         }
 
-        textarea, select, input[type="text"] {
+        textarea, select, input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             box-sizing: border-box;
+            transition: border-color 0.2s;
         }
 
         textarea {
             resize: vertical;
         }
 
+        textarea:focus, select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
         button {
             display: block;
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
         }
 
         button:hover {
@@ -56,26 +77,20 @@
         }
 
         #output {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            padding: 10px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 15px;
             white-space: pre-wrap;
-            font-family: monospace;
-            margin-top: 20px;
-        }
-
-        .container {
-            width: 60%;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin-top: 30px;
+            border-radius: 6px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
             .container {
-                width: 90%;
+                width: 95%;
+                margin: 20px auto;
             }
         }
     </style>
@@ -87,19 +102,19 @@
         <!-- Enchantment Name -->
         <div class="form-group">
             <label for="enchantmentName">Enchantment Name:</label>
-            <textarea id="enchantmentName"></textarea>
+            <textarea id="enchantmentName" rows="2"></textarea>
         </div>
 
         <!-- Description -->
         <div class="form-group">
             <label for="enchantmentDescription">Description:</label>
-            <textarea id="enchantmentDescription"></textarea>
+            <textarea id="enchantmentDescription" rows="3"></textarea>
         </div>
 
         <!-- Group -->
         <div class="form-group">
             <label for="group">Group:</label>
-            <textarea id="group"></textarea>
+            <textarea id="group" rows="2"></textarea>
         </div>
 
         <!-- Triggers -->
@@ -148,8 +163,7 @@
                 const triggers = await response.json();
                 const triggersSelect = document.getElementById('triggers');
                 
-                // Loop through the dictionary
-                for (const [key, value] of Object.entries(triggers)) {
+                for (const [key] of Object.entries(triggers)) {
                     const option = document.createElement('option');
                     option.value = key;
                     option.text = key;
@@ -160,7 +174,7 @@
             }
         }
 
-        // Load effects for levels from JSON
+        // Load effects from JSON
         async function loadEffects() {
             try {
                 const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/effects.json');
@@ -173,7 +187,7 @@
                 levelsSelect.addEventListener('change', function () {
                     const levelCount = parseInt(this.value);
                     const effectsContainer = document.getElementById('effectsContainer');
-                    effectsContainer.innerHTML = ''; // Clear previous effects
+                    effectsContainer.innerHTML = '';
 
                     for (let i = 1; i <= levelCount; i++) {
                         const select = document.createElement('select');
@@ -182,7 +196,6 @@
                             handleArgsInput(this, effects, i);
                         });
 
-                        // Iterate over the 'actions' section of effects
                         for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
                             const option = document.createElement('option');
                             const action = effectDetails.effect.action;
@@ -199,7 +212,6 @@
                         div.appendChild(label);
                         div.appendChild(select);
 
-                        // Cooldown and Chance inputs
                         const cooldownLabel = document.createElement('label');
                         cooldownLabel.textContent = `Cooldown for Level ${i}:`;
 
@@ -225,7 +237,6 @@
 
                         div.appendChild(inputDiv);
 
-                        // Div to hold arguments input
                         const argsDiv = document.createElement('div');
                         argsDiv.id = `argsDiv${i}`;
                         div.appendChild(argsDiv);
@@ -248,7 +259,6 @@
                 const materials = await response.json();
                 const appliesToSelect = document.getElementById('appliesTo');
 
-                // Populate materials dropdown with formatted values
                 for (const [materialKey, materialDetails] of Object.entries(materials)) {
                     const option = document.createElement('option');
                     option.value = materialKey;
@@ -260,13 +270,11 @@
             }
         }
 
-        // Handle adding argument inputs based on the selected effect
         function handleArgsInput(selectElement, effects, level) {
             const selectedEffect = selectElement.value;
             const argsDiv = document.getElementById(`argsDiv${level}`);
-            argsDiv.innerHTML = ''; // Clear previous args input if any
+            argsDiv.innerHTML = '';
 
-            // Find the selected effect's arguments
             for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
                 if (effectDetails.effect.action === selectedEffect) {
                     const args = effectDetails.effect.args;
@@ -286,14 +294,13 @@
                             inputDiv.appendChild(label);
                             inputDiv.appendChild(input);
 
-                            argsDiv.appendChild(inputDiv); // Append each argument input
+                            argsDiv.appendChild(inputDiv);
                         });
                     }
                 }
             }
         }
 
-        // Generate the template based on user input
         function generateTemplate() {
             const enchantmentName = document.getElementById('enchantmentName').value;
             const enchantmentDescription = document.getElementById('enchantmentDescription').value;
@@ -308,21 +315,19 @@
                 const effectDropdown = document.getElementById(`effectLevel${i}`);
                 const selectedEffect = effectDropdown.value;
 
-                // Collect arguments if any
                 const argsDiv = document.getElementById(`argsDiv${i}`);
                 const inputs = argsDiv.querySelectorAll('input');
                 let argsString = '';
 
                 inputs.forEach(input => {
-                    argsString += `${input.value},`; // Collect input values
+                    argsString += `${input.value},`;
                 });
-                argsString = argsString.slice(0, -1); // Remove the trailing comma
+                argsString = argsString.slice(0, -1);
 
                 const fullEffect = argsString ? `${selectedEffect}:${argsString}` : selectedEffect;
 
-                // Get cooldown and chance values
-                const cooldown = document.getElementById(`cooldownLevel${i}`).value || '0'; // Default to 0 if not entered
-                const chance = document.getElementById(`chanceLevel${i}`).value || '100'; // Default to 100% if not entered
+                const cooldown = document.getElementById(`cooldownLevel${i}`).value || '0';
+                const chance = document.getElementById(`chanceLevel${i}`).value || '100';
 
                 levelsTemplate += `
         ${i}:
@@ -349,7 +354,6 @@
             document.getElementById('output').innerText = template;
         }
 
-        // Load triggers, effects, and materials on page load
         window.onload = function() {
             loadTriggers();
             loadEffects();
