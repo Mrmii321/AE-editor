@@ -10,70 +10,54 @@
             margin: 0;
             padding: 0;
             background-color: #e0e0e0;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            color: #333;
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 110vh;
         }
 
         .container {
-            max-width: 800px;
-            margin: 40px auto;
+            width: 600px;
             background-color: #ffffff;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        textarea, select, input[type="text"], input[type="number"] {
-            width: 100%;
+        .enchant-name, .trigger-section, .levels-section {
+            border: 2px solid black;
             padding: 10px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
         }
 
-        textarea {
-            resize: vertical;
+        .enchant-name, .extra-fields, .trigger-section {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        textarea:focus, select:focus, input[type="text"]:focus, input[type="number"]:focus {
-            border-color: #4CAF50;
-            outline: none;
+        .levels-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
         }
 
-        button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
+        #levelList {
+            border: 2px solid black;
+            width: 70%;
+            padding: 10px;
+            height: 100px;
+            overflow-y: auto;
+        }
+
+        .new-level-btn {
+            border: 2px solid black;
+            padding: 10px;
             cursor: pointer;
-            font-size: 18px;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #45a049;
+            align-self: start;
         }
 
         #output {
@@ -82,281 +66,259 @@
             padding: 15px;
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
-            margin-top: 30px;
+            margin-top: 10px;
             border-radius: 6px;
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+            height: 200px;
+            overflow-y: auto;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-                margin: 20px auto;
-            }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background-color: white;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .popup-header {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>AE Editor</h1>
-
-        <!-- Enchantment Name -->
-        <div class="form-group">
-            <label for="enchantmentName">Enchantment Name:</label>
-            <textarea id="enchantmentName" rows="2"></textarea>
+        <!-- Enchantment Basic Info -->
+        <div class="enchant-name">
+            <input type="text" id="enchantmentName" placeholder="Enchantment System Name">
         </div>
 
-        <!-- Description -->
-        <div class="form-group">
-            <label for="enchantmentDescription">Description:</label>
-            <textarea id="enchantmentDescription" rows="3"></textarea>
-        </div>
-
-        <!-- Group -->
-        <div class="form-group">
-            <label for="group">Group:</label>
-            <textarea id="group" rows="2"></textarea>
-        </div>
-
-        <!-- Triggers -->
-        <div class="form-group">
-            <label for="triggers">Triggers:</label>
-            <select id="triggers">
-                <!-- Options will be populated dynamically -->
+        <!-- Extra Fields -->
+        <div class="extra-fields">
+            <textarea id="enchantmentDescription" placeholder="Enchantment Description"></textarea>
+            <input type="text" id="group" placeholder="Group">
+            <select id="material">
+                <option value="">Select Material</option>
             </select>
         </div>
 
-        <!-- Applies to -->
-        <div class="form-group">
-            <label for="appliesTo">Applies to:</label>
+        <!-- Trigger and Applies To Section -->
+        <div class="trigger-section">
+            <select id="trigger">
+                <option value="">Select Trigger</option>
+            </select>
             <select id="appliesTo">
-                <!-- Materials will be populated dynamically -->
+                <option value="">Select Applies To</option>
             </select>
         </div>
 
-        <!-- Levels -->
-        <div class="form-group">
-            <label for="levels">How many levels:</label>
-            <select id="levels">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
+        <!-- Levels Section -->
+        <div class="levels-section">
+            <div id="levelList">List of levels</div>
+            <div class="new-level-btn" onclick="showLevelPopup()">New lvl</div>
         </div>
 
-        <!-- Effects -->
-        <div id="effectsContainer" class="form-group"></div>
-
+        <!-- Output Area -->
         <button onclick="generateTemplate()">Generate Template</button>
-
-        <!-- Output area -->
         <pre id="output"></pre>
     </div>
 
+    <!-- Popup for Adding/Editing Level -->
+    <div id="levelPopup" class="popup">
+        <div class="popup-close" onclick="closeLevelPopup()">X</div>
+        <div class="popup-header">Edit Level</div>
+        <div>
+            <label for="effect">Effect</label>
+            <select id="effect" onchange="loadArgsForEffect()">
+                <option value="">Select Effect</option>
+            </select>
+        </div>
+        <div id="argsContainer"></div>
+        <div>
+            <label for="cooldown">Cooldown</label>
+            <input type="number" id="cooldown">
+        </div>
+        <div>
+            <label for="chance">Chance</label>
+            <input type="number" id="chance">
+        </div>
+        <button onclick="saveLevel()">Save Level</button>
+    </div>
+
     <script>
-        // Load triggers from JSON
+        const levels = [];
+        let effectsData = {};
+
         async function loadTriggers() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/triggers.json');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch triggers: ${response.statusText}`);
-                }
-                const triggers = await response.json();
-                const triggersSelect = document.getElementById('triggers');
-                
-                for (const [key] of Object.entries(triggers)) {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.text = key;
-                    triggersSelect.appendChild(option);
-                }
-            } catch (error) {
-                console.error(error);
+            const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/triggers.json');
+            const triggers = await response.json();
+            const triggerSelect = document.getElementById("trigger");
+
+            for (const key of Object.keys(triggers)) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.text = key;
+                triggerSelect.appendChild(option);
             }
         }
 
-        // Load effects from JSON
-        async function loadEffects() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/effects.json');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch effects: ${response.statusText}`);
-                }
-                const effects = await response.json();
-                const levelsSelect = document.getElementById('levels');
+        async function loadAppliesTo() {
+            const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/applies.json');
+            const appliesTo = await response.json();
+            const appliesToSelect = document.getElementById("appliesTo");
 
-                levelsSelect.addEventListener('change', function () {
-                    const levelCount = parseInt(this.value);
-                    const effectsContainer = document.getElementById('effectsContainer');
-                    effectsContainer.innerHTML = '';
-
-                    for (let i = 1; i <= levelCount; i++) {
-                        const select = document.createElement('select');
-                        select.id = `effectLevel${i}`;
-                        select.addEventListener('change', function() {
-                            handleArgsInput(this, effects, i);
-                        });
-
-                        for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
-                            const option = document.createElement('option');
-                            const action = effectDetails.effect.action;
-                            option.value = action;
-                            option.text = effectKey;
-                            select.appendChild(option);
-                        }
-
-                        const label = document.createElement('label');
-                        label.textContent = `Effect for Level ${i}:`;
-
-                        const div = document.createElement('div');
-                        div.className = 'form-group';
-                        div.appendChild(label);
-                        div.appendChild(select);
-
-                        const cooldownLabel = document.createElement('label');
-                        cooldownLabel.textContent = `Cooldown for Level ${i}:`;
-
-                        const cooldownInput = document.createElement('input');
-                        cooldownInput.type = 'number';
-                        cooldownInput.id = `cooldownLevel${i}`;
-                        cooldownInput.placeholder = 'Enter cooldown in seconds';
-
-                        const chanceLabel = document.createElement('label');
-                        chanceLabel.textContent = `Chance for Level ${i} (%):`;
-
-                        const chanceInput = document.createElement('input');
-                        chanceInput.type = 'number';
-                        chanceInput.id = `chanceLevel${i}`;
-                        chanceInput.placeholder = 'Enter chance percentage';
-
-                        const inputDiv = document.createElement('div');
-                        inputDiv.className = 'form-group';
-                        inputDiv.appendChild(cooldownLabel);
-                        inputDiv.appendChild(cooldownInput);
-                        inputDiv.appendChild(chanceLabel);
-                        inputDiv.appendChild(chanceInput);
-
-                        div.appendChild(inputDiv);
-
-                        const argsDiv = document.createElement('div');
-                        argsDiv.id = `argsDiv${i}`;
-                        div.appendChild(argsDiv);
-
-                        effectsContainer.appendChild(div);
-                    }
-                });
-            } catch (error) {
-                console.error(error);
+            for (const key in appliesTo) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.text = appliesTo[key].formatted;
+                appliesToSelect.appendChild(option);
             }
         }
 
-        // Load materials (applies to) from JSON
         async function loadMaterials() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/applies.json');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch materials: ${response.statusText}`);
-                }
-                const materials = await response.json();
-                const appliesToSelect = document.getElementById('appliesTo');
+            const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/materials.json');
+            const materials = await response.json();
+            const materialSelect = document.getElementById("material");
 
-                for (const [materialKey, materialDetails] of Object.entries(materials)) {
-                    const option = document.createElement('option');
-                    option.value = materialKey;
-                    option.text = materialDetails.formatted;
-                    appliesToSelect.appendChild(option);
-                }
-            } catch (error) {
-                console.error(error);
+            for (const key in materials) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.text = materials[key];
+                materialSelect.appendChild(option);
             }
         }
 
-        function handleArgsInput(selectElement, effects, level) {
-            const selectedEffect = selectElement.value;
-            const argsDiv = document.getElementById(`argsDiv${level}`);
-            argsDiv.innerHTML = '';
+        async function loadEffects() {
+            const response = await fetch('https://raw.githubusercontent.com/AdvancedPlugins/Contributions/main/advancedenchantments/effects.json');
+            effectsData = await response.json();
+            const effectSelect = document.getElementById("effect");
 
-            for (const [effectKey, effectDetails] of Object.entries(effects.actions)) {
-                if (effectDetails.effect.action === selectedEffect) {
-                    const args = effectDetails.effect.args;
-
-                    if (args.length > 0) {
-                        args.forEach(arg => {
-                            const label = document.createElement('label');
-                            label.textContent = `Argument (${arg}):`;
-
-                            const input = document.createElement('input');
-                            input.type = 'text';
-                            input.id = `arg_${arg}_level_${level}`;
-                            input.placeholder = `Enter ${arg}`;
-
-                            const inputDiv = document.createElement('div');
-                            inputDiv.className = 'form-group';
-                            inputDiv.appendChild(label);
-                            inputDiv.appendChild(input);
-
-                            argsDiv.appendChild(inputDiv);
-                        });
-                    }
-                }
+            for (const effectKey in effectsData.actions) {
+                const option = document.createElement("option");
+                option.value = effectsData.actions[effectKey].effect.action;
+                option.text = effectKey;
+                effectSelect.appendChild(option);
             }
+        }
+
+        function loadArgsForEffect() {
+            const selectedEffect = document.getElementById("effect").value;
+            const argsContainer = document.getElementById("argsContainer");
+            argsContainer.innerHTML = "";
+
+            const effectDetails = Object.values(effectsData.actions).find(
+                action => action.effect.action === selectedEffect
+            );
+
+            if (effectDetails && effectDetails.effect.args) {
+                effectDetails.effect.args.forEach(arg => {
+                    const label = document.createElement("label");
+                    label.textContent = `Argument (${arg}):`;
+
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.id = `arg_${arg}`;
+                    input.placeholder = `Enter ${arg}`;
+
+                    const div = document.createElement("div");
+                    div.appendChild(label);
+                    div.appendChild(input);
+                    argsContainer.appendChild(div);
+                });
+            }
+        }
+
+        function showLevelPopup() {
+            document.getElementById("effect").value = "";
+            document.getElementById("cooldown").value = "";
+            document.getElementById("chance").value = "";
+            document.getElementById("argsContainer").innerHTML = "";
+            document.getElementById("levelPopup").style.display = "block";
+        }
+
+        function closeLevelPopup() {
+            document.getElementById("levelPopup").style.display = "none";
+        }
+
+        function saveLevel() {
+            const effect = document.getElementById("effect").value;
+            const cooldown = document.getElementById("cooldown").value;
+            const chance = document.getElementById("chance").value;
+
+            const argsElements = document.querySelectorAll("#argsContainer input");
+            let args = Array.from(argsElements).map(input => `${input.placeholder.replace('Enter ', '')}:${input.value}`).join(",");
+
+            const level = { effect, args, cooldown, chance };
+            levels.push(level);
+
+            updateLevelList();
+            closeLevelPopup();
+        }
+
+        function updateLevelList() {
+            const levelList = document.getElementById("levelList");
+            levelList.innerHTML = levels.length === 0 ? "List of levels" : "";
+
+            levels.forEach((level, index) => {
+                const levelItem = document.createElement("div");
+                levelItem.textContent = `Level ${index + 1}: Effect - ${level.effect}, Cooldown - ${level.cooldown}s, Chance - ${level.chance}%`;
+                levelList.appendChild(levelItem);
+            });
         }
 
         function generateTemplate() {
-            const enchantmentName = document.getElementById('enchantmentName').value;
-            const enchantmentDescription = document.getElementById('enchantmentDescription').value;
-            const group = document.getElementById('group').value;
-            const triggers = document.getElementById('triggers').value;
-            const appliesTo = document.getElementById('appliesTo').value;
-            const levelCount = parseInt(document.getElementById('levels').value);
+            const enchantmentName = document.getElementById("enchantmentName").value;
+            const enchantmentDescription = document.getElementById("enchantmentDescription").value;
+            const group = document.getElementById("group").value;
+            const material = document.getElementById("material").value;
+            const trigger = document.getElementById("trigger").value;
+            const appliesTo = document.getElementById("appliesTo").value;
 
-            let levelsTemplate = '';
-
-            for (let i = 1; i <= levelCount; i++) {
-                const effectDropdown = document.getElementById(`effectLevel${i}`);
-                const selectedEffect = effectDropdown.value;
-
-                const argsDiv = document.getElementById(`argsDiv${i}`);
-                const inputs = argsDiv.querySelectorAll('input');
-                let argsString = '';
-
-                inputs.forEach(input => {
-                    argsString += `${input.value},`;
-                });
-                argsString = argsString.slice(0, -1);
-
-                const fullEffect = argsString ? `${selectedEffect}:${argsString}` : selectedEffect;
-
-                const cooldown = document.getElementById(`cooldownLevel${i}`).value || '0';
-                const chance = document.getElementById(`chanceLevel${i}`).value || '100';
-
-                levelsTemplate += `${i}:
-                effects:
-                    - "${fullEffect}"
-                cooldown: ${cooldown}
-                chance: ${chance}`;
-            }
+            let levelsTemplate = "";
+            levels.forEach((level, index) => {
+                levelsTemplate += `
+    ${index + 1}:
+        effects:
+            - "${level.effect}:${level.args}"
+        cooldown: ${level.cooldown}
+        chance: ${level.chance}\n`;
+            });
 
             const template = `
-    Enchant template
-    ${enchantmentName}:
+${enchantmentName}:
     display: "${enchantmentName}"
     description: "${enchantmentDescription}"
     applies-to: "${appliesTo}"
-    type: "${triggers}"
+    type: "${trigger}"
     group: "${group}"
     applies:
-        - ${appliesTo}
+        - ${material}
     levels:
-        ${levelsTemplate}
-    `;
+${levelsTemplate}`;
 
-            document.getElementById('output').innerText = template;
+            document.getElementById("output").innerText = template;
         }
 
         window.onload = function() {
             loadTriggers();
-            loadEffects();
+            loadAppliesTo();
             loadMaterials();
+            loadEffects();
         };
     </script>
 </body>
